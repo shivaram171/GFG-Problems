@@ -2,44 +2,43 @@ import java.util.*;
 
 class Solution {
     public boolean isCyclic(int V, int[][] edges) {
-        // Build adjacency list
-        List<List<Integer>> adj = new ArrayList<>();
-        for (int i = 0; i < V; i++) {
-            adj.add(new ArrayList<>());
-        }
+        // Step 1: Build adjacency list
+        ArrayList<ArrayList<Integer>> adj = new ArrayList<>();
+        for (int i = 0; i < V; i++) adj.add(new ArrayList<>());
 
-        int[] indegree = new int[V];
-
-        // Fill adjacency list and indegree
         for (int[] e : edges) {
-            int u = e[0], v = e[1];
+            int u = e[0];
+            int v = e[1];
             adj.get(u).add(v);
-            indegree[v]++;
         }
 
-        // Queue for nodes with 0 indegree
-        Queue<Integer> q = new LinkedList<>();
+        // Step 2: Compute indegree of each node
+        int[] indegree = new int[V];
         for (int i = 0; i < V; i++) {
-            if (indegree[i] == 0) {
-                q.add(i);
+            for (int nbr : adj.get(i)) {
+                indegree[nbr]++;
             }
         }
 
-        int count = 0; // count thr number of processed nodes
+        // Step 3: Push all nodes with indegree 0 into queue
+        Queue<Integer> q = new LinkedList<>();
+        for (int i = 0; i < V; i++) {
+            if (indegree[i] == 0) q.add(i);
+        }
 
+        // Step 4: BFS traversal (Kahn’s Algorithm)
+        int count = 0;
         while (!q.isEmpty()) {
             int node = q.poll();
             count++;
 
-            for (int nei : adj.get(node)) {
-                indegree[nei]--;
-                if (indegree[nei] == 0) {
-                    q.add(nei);
-                }
+            for (int nbr : adj.get(node)) {
+                indegree[nbr]--;
+                if (indegree[nbr] == 0) q.add(nbr);
             }
         }
 
-        // If count != V, there’s a cycle
+        // Step 5: If count != V, cycle exists
         return count != V;
     }
 }
